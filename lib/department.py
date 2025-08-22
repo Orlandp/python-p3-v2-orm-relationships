@@ -94,7 +94,7 @@ class Department:
         # Check the dictionary for an existing instance using the row's primary key
         department = cls.all.get(row[0])
         if department:
-            # ensure attributes match row values in case local object was modified
+            # ensure attributes match row values in case local instance was modified
             department.name = row[1]
             department.location = row[2]
         else:
@@ -139,3 +139,17 @@ class Department:
 
         row = CURSOR.execute(sql, (name,)).fetchone()
         return cls.instance_from_db(row) if row else None
+
+    def employees(self):
+        """Return list of employees associated with current department"""
+        from employee import Employee
+        sql = """
+            SELECT * FROM employees
+            WHERE department_id = ?
+        """
+        CURSOR.execute(sql, (self.id,),)
+
+        rows = CURSOR.fetchall()
+        return [
+            Employee.instance_from_db(row) for row in rows
+        ]
